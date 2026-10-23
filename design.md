@@ -315,13 +315,14 @@ The north star is **durable understanding per build session, without slowing bui
 - **Actions:** Download PNG (2×), Copy image (uses the Safari-compatible clipboard approach, though not yet tested in Safari), Copy text (a shareable summary), Keep building.
 
 ### 9.8 Constellation page
-- **Header stats:** stars · concepts · connections · 🔥 day streak · badges.
+- **Header stats:** stars · concepts · connections · 🔥 day streak · badges. "Concepts" means one per star in the sky (including a flow-walkthrough star). The debrief card uses the same shared count (`conceptCount`), so the two always agree.
 - **Star map:** 7 category clusters.
   - **Every line is a real "builds on" link,** drawn as a glowing arrow from the earlier concept to the later one. Better-connected stars glow bigger, and well-connected stars show labels.
   - **New since your last visit:** new connections draw themselves in, then a dot of light travels from the old star to the new one, which flashes on arrival. The newest stars (up to 5; on a first visit the latest 3) pulse once.
   - **Twinkle:** each star twinkles at its own stable rhythm.
   - **Hover a star** (or a list row) to see a card: emoji and rule, concept and category, **how you earned it** (🎯 guessed cold / 🤔 close guess / 🧭 missed then learned / 📖 asked me to explain / ❓ your own "why?" / 🗺️ walked a flow map), stars, whether it cleared a misconception, what it builds on, the project, and the date. The card clears when you leave the star or tap empty sky.
   - **Click a star** to see its flashcard, **Builds on** and **Led to** lists (clickable), and a replay of pulses along its links.
+  - **Empty category orbs explain themselves:** hovering, tapping or focusing an orb with no stars shows "No <category> stars yet", what the category covers, and which badge 3 stars there would unlock (e.g. "3 stars here unlock 🛡️ Gatekeeper"). Tapping elsewhere closes it.
   - Deep links: `/constellation?focus=<starId>`.
   - All motion is disabled under reduced-motion settings.
 - **Concepts learned list:** each concept's rule, a link count and stars.

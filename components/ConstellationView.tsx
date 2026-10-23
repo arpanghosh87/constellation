@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { BADGES, totalStars } from "@/lib/badges";
+import { BADGES, CATEGORY_THRESHOLD, conceptCount, totalStars } from "@/lib/badges";
 import {
   CLUSTER,
   MAP_H,
@@ -14,7 +14,7 @@ import {
   starEdges,
 } from "@/lib/constellationLayout";
 import { dayStreak, howEarned, useProgress, type StarRecord } from "@/lib/progress";
-import { CATEGORIES, CATEGORY_META } from "@/lib/types";
+import { CATEGORIES, CATEGORY_META, type Category } from "@/lib/types";
 import { InlineCode } from "./InlineCode";
 
 const LAST_VISIT_KEY = "constellation-last-visit";
@@ -75,6 +75,7 @@ export default function ConstellationView() {
   const misconceptions = useProgress((s) => s.misconceptions);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hoverId, setHoverId] = useState<string | null>(null);
+  const [emptyOrb, setEmptyOrb] = useState<Category | null>(null);
 
   // Deep link from a lesson: /constellation?focus=<starId>
   useEffect(() => {
@@ -152,8 +153,8 @@ export default function ConstellationView() {
           </Link>
           <div className="text-sm text-zinc-400">
             <span className="text-star">★</span> <span className="font-semibold text-zinc-100">{totalStars(stars)}</span>{" "}
-            stars · {stars.length} concepts ·{" "}
-            <span className="font-semibold text-zinc-100">{edges.length}</span> connections · 🔥 {dayStreak(stars)}-day
+            stars · {conceptCount(stars)} concepts ·{" "}
+            <span className="font-semibold text-zinc-100">{edges.length}</span> connection{edges.length === 1 ? "" : "s"} · 🔥 {dayStreak(stars)}-day
             streak · {earned.length}/{BADGES.length} badges
           </div>
         </header>
@@ -165,6 +166,7 @@ export default function ConstellationView() {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_340px]">
           <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/30">
+            {emptyOrb && !hoverId && <EmptyOrbTip category={emptyOrb} />}
             {hoverId && byId[hoverId] && (
               <StarHoverCard
                 star={byId[hoverId]}
@@ -178,7 +180,11 @@ export default function ConstellationView() {
               className="h-auto w-full"
               onMouseLeave={() => setHoverId(null)}
               // Tapping empty sky dismisses the card (touch has no mouseleave).
-              onClick={(e) => !(e.target as Element).closest("[data-star]") && setHoverId(null)}
+              onClick={(e) => {
+                const target = e.target as Element;
+                if (!target.closest("[data-star]")) setHoverId(null);
+                if (!target.closest("[data-orb]")) setEmptyOrb(null);
+              }}
             >
               <defs>
                 <filter id="glow">
@@ -198,7 +204,26 @@ export default function ConstellationView() {
                 const meta = CATEGORY_META[c];
                 const has = stars.some((s) => s.category === c);
                 return (
-                  <g key={c}>
+                  <g
+                    key={c}
+                    // Empty orbs explain themselves instead of being dead clicks.
+                    {...(has
+                      ? {}
+                      : {
+                          "data-orb": c,
+                          role: "button",
+                          tabIndex: 0,
+                          "aria-label": `No ${meta.label} stars yet`,
+                          style: { cursor: "help" },
+                          onMouseEnter: () => setEmptyOrb(c),
+                          onMouseLeave: () => setEmptyOrb((o) => (o === c ? null : o)),
+                          onFocus: () => setEmptyOrb(c),
+                          onBlur: () => setEmptyOrb((o) => (o === c ? null : o)),
+                          // A tap also fires mouseenter first, so clicking opens (never toggles);
+                          // tapping elsewhere in the sky closes it.
+                          onClick: () => setEmptyOrb(c),
+                        })}
+                  >
                     <circle cx={x} cy={y} r={CLUSTER + 18} fill={meta.color} opacity={has ? 0.05 : 0.02} />
                     <text x={x} y={y + CLUSTER + 38} textAnchor="middle" fontSize="13" fill={meta.color} opacity={has ? 0.9 : 0.35}>
                       {meta.label}
@@ -537,6 +562,35 @@ function StarHoverCard(props: {
           {new Date(star.earnedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
         </p>
       </div>
+    </motion.div>
+  );
+}
+
+/** "No stars here yet": what the category is about, and what lighting it up unlocks. */
+function EmptyOrbTip({ category }: { category: Category }) {
+  const meta = CATEGORY_META[category];
+  const center = clusterCenter(category);
+  const badge = BADGES.find((b) => b.category === category);
+  const left = Math.min(82, Math.max(18, (center.x / MAP_W) * 100));
+  const top = (center.y / MAP_H) * 100;
+  return (
+    <motion.div
+      key={category}
+      role="tooltip"
+      initial={{ opacity: 0, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="pointer-events-none absolute z-10 w-60 -translate-x-1/2 -translate-y-1/2 rounded-xl border border-white/15 bg-panel-2/95 px-3 py-2.5 text-xs shadow-2xl backdrop-blur"
+      style={{ left: `${left}%`, top: `${top}%` }}
+    >
+      <p className="font-semibold" style={{ color: meta.color }}>
+        No {meta.label} stars yet
+      </p>
+      <p className="mt-0.5 text-zinc-400">{meta.blurb}. Catch a ✦ about this to light one up.</p>
+      {badge && (
+        <p className="mt-1.5 text-zinc-300">
+          {CATEGORY_THRESHOLD} stars here unlock {badge.icon} {badge.name}
+        </p>
+      )}
     </motion.div>
   );
 }

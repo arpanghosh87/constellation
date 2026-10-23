@@ -1,4 +1,4 @@
-import { totalStars } from "./badges";
+import { conceptCount, totalStars } from "./badges";
 import { linkPath, MAP_H, MAP_W, placeStars, starEdges } from "./constellationLayout";
 import { dayStreak, type Misconception, type StarRecord } from "./progress";
 import { CATEGORY_META } from "./types";
@@ -45,7 +45,8 @@ export function computeDebrief(args: {
     cleared: args.misconceptions.filter((m) => m.status === "cleared" && m.clearedBy && projectIds.has(m.clearedBy)).length,
     streak: dayStreak(args.stars),
     totalStars: totalStars(args.stars),
-    totalConcepts: args.stars.filter((s) => s.source !== "flow").length,
+    // Same definition as the constellation page, so the card and the sky always agree.
+    totalConcepts: conceptCount(args.stars),
   };
 }
 
@@ -163,7 +164,7 @@ export function renderDebriefSvg(d: Debrief, allStars: StarRecord[]) {
         .join("")
     : `<text ${font} x="60" y="440" font-size="20" fill="#71717a">No concepts this round. Next time, catch a ✦.</text>`;
 
-  const footer = [`★ ${d.totalStars} star${d.totalStars === 1 ? "" : "s"}`, `${d.totalConcepts} concepts in my sky`, d.streak > 0 ? `🔥 ${d.streak}-day streak` : ""]
+  const footer = [`★ ${d.totalStars} star${d.totalStars === 1 ? "" : "s"}`, `${d.totalConcepts} concept${d.totalConcepts === 1 ? "" : "s"} in my sky`, d.streak > 0 ? `🔥 ${d.streak}-day streak` : ""]
     .filter(Boolean)
     .join("   ·   ");
 

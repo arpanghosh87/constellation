@@ -6,6 +6,8 @@ export type Badge = {
   name: string;
   icon: string;
   description: string;
+  /** Set on category badges, so the sky can say what an empty category unlocks. */
+  category?: Category;
   earned: (stars: StarRecord[], misconceptions: Misconception[]) => boolean;
 };
 
@@ -22,12 +24,13 @@ const milestone = (id: string, name: string, icon: string, n: number): Badge => 
   earned: (s) => total(s) >= n,
 });
 
-const CATEGORY_THRESHOLD = 3;
+export const CATEGORY_THRESHOLD = 3;
 const category = (id: string, name: string, icon: string, c: Category, what: string): Badge => ({
   id,
   name,
   icon,
   description: `${CATEGORY_THRESHOLD} stars in ${what}`,
+  category: c,
   earned: (s) => inCategory(s, c) >= CATEGORY_THRESHOLD,
 });
 
@@ -77,4 +80,9 @@ export function connectionCount(stars: StarRecord[]) {
 
 export function totalStars(stars: StarRecord[]) {
   return total(stars);
+}
+
+/** Lifetime concepts in the sky: one per star, exactly what the constellation lists and draws. */
+export function conceptCount(stars: StarRecord[]) {
+  return stars.length;
 }
