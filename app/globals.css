@@ -91,6 +91,11 @@ body {
 .cst-sandpack .sp-preview-container {
   height: 100% !important;
 }
+/* Sandpack's preview frame is white by default: it flashes while the app loads or recompiles. */
+.cst-sandpack .sp-preview-container,
+.cst-sandpack .sp-preview-iframe {
+  background: #0b0b14 !important;
+}
 
 /* Twinkling starfield background */
 .starfield {

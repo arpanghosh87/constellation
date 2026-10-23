@@ -20,11 +20,12 @@ export const STARTER_FILES: Record<string, string> = {
   );
 }
 `,
-  "/styles.css": `body {
+  "/styles.css": `html,
+body {
   margin: 0;
   font-family: system-ui, -apple-system, sans-serif;
-  background: #fafafa;
-  color: #18181b;
+  background: #0b0b14;
+  color: #e4e4e7;
 }
 
 .empty {
@@ -32,7 +33,11 @@ export const STARTER_FILES: Record<string, string> = {
   display: grid;
   place-content: center;
   text-align: center;
-  color: #71717a;
+  color: #8b8ba7;
+}
+
+.empty h1 {
+  color: #facc15;
 }
 `,
 };
