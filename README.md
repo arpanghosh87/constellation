@@ -19,7 +19,9 @@ npm run dev                  # http://localhost:3000
 
 ## Deploy (Vercel)
 
-Set the env vars from `.env.example`:
+The Vercel project is connected to this repo: every push to `main` deploys to production, and other branches get preview URLs.
+
+Set the env vars from `.env.example` in the Vercel project settings:
 
 - `ANTHROPIC_API_KEY`: required.
 - `ACCESS_CODE`: recommended on a public URL. Visitors must enter it once (httpOnly cookie).
