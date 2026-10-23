@@ -1,6 +1,7 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
+import { clipWords } from "./text";
 import { CATEGORIES, FLOW_EDGE_KINDS, FLOW_NODE_KINDS, type MentorMode } from "./types";
 
 export const MODEL = "claude-opus-5-5";
@@ -73,7 +74,7 @@ const capped = (max: number) =>
   z
     .string()
     .min(1)
-    .transform((s) => s.slice(0, max));
+    .transform((s) => clipWords(s, max));
 
 /** Validated (and size-capped) glint input; everything here ends up in localStorage and later prompts. */
 export const mentorMomentInput = z.object({

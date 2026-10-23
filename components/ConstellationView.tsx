@@ -15,6 +15,7 @@ import {
 } from "@/lib/constellationLayout";
 import { dayStreak, howEarned, useProgress, type StarRecord } from "@/lib/progress";
 import { CATEGORIES, CATEGORY_META, type Category } from "@/lib/types";
+import { clipWords } from "@/lib/text";
 import { InlineCode } from "./InlineCode";
 
 const LAST_VISIT_KEY = "constellation-last-visit";
@@ -471,7 +472,7 @@ function ConceptList(props: {
               >
                 <span>{s.lesson.emoji}</span>
                 <span className="flex-1 truncate" title={s.lesson.headline}>
-                  {s.lesson.headline || s.concept}
+                  {clipWords(s.lesson.headline || s.concept, 38)}
                 </span>
                 {(s.links?.length ?? 0) > 0 && <span className="text-xs text-star/80">🔗{s.links.length}</span>}
                 <span className="text-star">{"★".repeat(s.stars)}</span>

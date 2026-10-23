@@ -1,6 +1,7 @@
 import { conceptCount, totalStars } from "./badges";
 import { linkPath, MAP_H, MAP_W, placeStars, starEdges } from "./constellationLayout";
 import { dayStreak, type Misconception, type StarRecord } from "./progress";
+import { clipWords } from "./text";
 import { CATEGORY_META } from "./types";
 
 export type Debrief = {
@@ -23,8 +24,7 @@ export function projectName(firstPrompt: string | undefined) {
     .trim()
     .replace(/^(please\s+)?(can you\s+)?(build|make|create|write|code)\s+(me\s+)?/i, "")
     .replace(/[.!]+$/, "");
-  const short = cleaned.length > 70 ? cleaned.slice(0, 67).trimEnd() + "…" : cleaned;
-  return short || "something new";
+  return clipWords(cleaned, 70) || "something new";
 }
 
 export function computeDebrief(args: {
@@ -75,9 +75,6 @@ const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const plain = (s: string) => s.replace(/`/g, "");
 
-function clip(s: string, max: number) {
-  return s.length > max ? s.slice(0, max - 1).trimEnd() + "…" : s;
-}
 
 /** Word-wrap into at most `lines` lines of `max` chars; the last line gets an ellipsis if needed. */
 function wrap(text: string, max: number, lines: number) {
@@ -93,7 +90,7 @@ function wrap(text: string, max: number, lines: number) {
   out.push(line);
   if (out.length <= lines) return out.filter(Boolean);
   const kept = out.slice(0, lines);
-  kept[lines - 1] = clip(out.slice(lines - 1).join(" "), max);
+  kept[lines - 1] = clipWords(out.slice(lines - 1).join(" "), max);
   return kept;
 }
 
@@ -159,7 +156,7 @@ export function renderDebriefSvg(d: Debrief, allStars: StarRecord[]) {
     ? rules
         .map(
           (s, i) =>
-            `<text ${font} x="60" y="${440 + i * 38}" font-size="21" fill="#e4e4e7">${esc(s.lesson.emoji)}  ${esc(clip(plain(s.lesson.headline), 46))}</text>`,
+            `<text ${font} x="60" y="${440 + i * 38}" font-size="21" fill="#e4e4e7">${esc(s.lesson.emoji)}  ${esc(clipWords(plain(s.lesson.headline), 46))}</text>`,
         )
         .join("")
     : `<text ${font} x="60" y="440" font-size="20" fill="#71717a">No concepts this round. Next time, catch a ✦.</text>`;

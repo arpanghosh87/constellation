@@ -1,6 +1,7 @@
 "use client";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { clipWords } from "@/lib/text";
 import { CATEGORY_META } from "@/lib/types";
 import { useWorkspace } from "@/lib/workspace";
 
@@ -65,7 +66,9 @@ export function GlintsTray() {
                     {g.concept || CATEGORY_META[g.category].label}
                   </span>
                 </div>
-                <p className="mt-0.5 line-clamp-2 text-sm text-zinc-300">{g.teaser || g.title}</p>
+                <p className="mt-0.5 text-sm text-zinc-300" title={g.teaser || g.title}>
+                  {clipWords(g.teaser || g.title, 110)}
+                </p>
               </button>
             ))}
           </motion.div>
