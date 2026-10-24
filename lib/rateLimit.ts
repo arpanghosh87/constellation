@@ -9,6 +9,7 @@ const LIMITS = {
   lesson: { requests: 60, windowSec: 600 },
   feedback: { requests: 120, windowSec: 600 },
   flow: { requests: 30, windowSec: 600 },
+  access: { requests: 10, windowSec: 600 },
 } satisfies Record<string, Limit>;
 
 type Bucket = keyof typeof LIMITS;

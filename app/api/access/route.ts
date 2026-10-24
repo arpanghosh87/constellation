@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
-import { ACCESS_COOKIE } from "@/lib/access";
+import { ACCESS_COOKIE, accessToken } from "@/lib/access";
+import { checkRateLimit, clientIp } from "@/lib/rateLimit";
 
 export async function POST(req: Request) {
   const expected = process.env.ACCESS_CODE;
   if (!expected) return NextResponse.json({ ok: true });
+  // This is the only place a code can be tried, so throttle guessing.
+  if (!(await checkRateLimit("access", clientIp(req)))) {
+    return NextResponse.json({ ok: false, error: "Too many attempts. Try again in a few minutes." }, { status: 429 });
+  }
 
   const { code } = (await req.json().catch(() => ({}))) as { code?: unknown };
   const given = Buffer.from(typeof code === "string" ? code : "");
@@ -14,7 +19,7 @@ export async function POST(req: Request) {
   }
 
   const res = NextResponse.json({ ok: true });
-  res.cookies.set(ACCESS_COOKIE, expected, {
+  res.cookies.set(ACCESS_COOKIE, await accessToken(expected), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
