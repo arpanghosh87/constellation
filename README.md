@@ -24,7 +24,13 @@ The Vercel project is connected to this repo: every push to `main` deploys to pr
 Set the env vars from `.env.example` in the Vercel project settings:
 
 - `ANTHROPIC_API_KEY`: required.
-- `ACCESS_CODE`: recommended on a public URL. Visitors must enter it once (httpOnly cookie).
+- `ACCESS_CODE`: recommended on a public URL. Visitors enter it once; the cookie holds a signed token, not the code.
+- `ACCESS_SECRET`: optional key for signing that cookie (defaults to `ANTHROPIC_API_KEY`).
 - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`: optional, for shared per-IP rate limits (20 builds and 60 lessons per 10 minutes). Without them, limits are per serverless instance.
 
 `/api/build` uses `maxDuration = 300`; builds typically take 30–60s.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
+

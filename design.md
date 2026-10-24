@@ -3,7 +3,7 @@
 > A coding workspace where Claude builds your app and, now and then, points at a decision worth understanding. Curiosity earns stars, stars form a constellation, and the constellation shows how your knowledge connects.
 
 - **Live prototype:** https://constellation-pied-gamma.vercel.app (access-code gated)
-- **Code:** private repo `arpanghosh87/constellation` (Next.js 15, TypeScript). About 6,000 lines of app code.
+- **Code:** `github.com/arpanghosh87/constellation` (Next.js 15, TypeScript, MIT license). About 6,000 lines of app code.
 - **Model:** Claude Opus 5.5 (`claude-opus-5-5`) for every Claude call.
 
 ---
@@ -218,7 +218,7 @@ The north star is **durable understanding per build session, without slowing bui
 ### 9.1 Access and landing
 - **Landing page:** headline ("Build fast. Still learn."), a three-step explanation, and a starfield background.
 - **Access code gate:** when `ACCESS_CODE` is set, visitors enter it once.
-  - It's stored as an httpOnly cookie for 30 days.
+  - The cookie (httpOnly, 30 days) holds a **signed token**: an HMAC of the code keyed by a server-only secret (`ACCESS_SECRET`, or the Anthropic key). It never holds the code itself, so it can't be forged from the code or the source. Code attempts are rate-limited (10 per 10 minutes per IP).
   - Middleware protects `/build`, `/constellation` and all Claude API routes. Unauthenticated API calls get 401, and pages redirect to `/?locked=1`.
   - The server compares codes in constant time. With no code configured (local dev), the gate is disabled.
 
@@ -377,7 +377,8 @@ Vercel serverless (Node runtime)
 - **Learner profile:** sent with each build (and ask-why lessons). Up to 40 learned concepts (refs `L1…`) and 10 open weak spots (refs `W1…`), using short refs so internal ids never reach the model. The server drops unknown refs, dedupes links, and trims long text instead of rejecting it.
 
 ### Limits
-- **Rate limits (per IP, per 10 minutes):** 20 builds, 60 lessons (shared with A/B), 30 flow maps, 120 feedback.
+- **Rate limits (per IP, per 10 minutes):** 20 builds, 60 lessons (shared with A/B), 30 flow maps, 120 feedback, 10 access-code attempts.
+- **Security headers:** `frame-ancestors 'none'` / `X-Frame-Options: DENY` (no framing), `nosniff`, a strict referrer policy, camera/mic/geolocation disabled, and no `X-Powered-By`. Production browser bundles are minified, and source maps aren't published.
 - **Request limits:** prompt 4,000 characters; history 20 turns × 4,000 characters (the client sends 10); project under 200 KB; snippet 4,000 characters; file paths must match `/^\/[\w\-./]+$/`.
 - **Glint fields** are capped on arrival: title 120, teaser 400, concept 80, link reason 160.
 
@@ -405,7 +406,7 @@ Vercel serverless (Node runtime)
 
 ### Deployment
 - Vercel project connected to the GitHub repo: a push to `main` deploys to production, and other branches get preview URLs.
-- **Environment:** `ANTHROPIC_API_KEY` (required), `ACCESS_CODE` (recommended), `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (optional, for shared rate limits).
+- **Environment:** `ANTHROPIC_API_KEY` (required), `ACCESS_CODE` (recommended), `ACCESS_SECRET` (optional cookie-signing key), `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (optional, for shared rate limits).
 
 ---
 
